@@ -12,7 +12,7 @@ doge is a fork of [dog](https://github.com/ogham/dog).
 </a>
 </div>
 
-![A screenshot of dog making a DNS request](dog-screenshot.png)
+![A screenshot of dog making a DNS request](doge-screenshot.jpg)
 
 ---
 
