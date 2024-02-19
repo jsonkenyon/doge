@@ -14,13 +14,19 @@ use super::{Transport, Error};
 ///   Implementation and Specification (November 1987)
 pub struct UdpTransport {
     addr: String,
+    custom_port: u16
 }
 
 impl UdpTransport {
 
     /// Creates a new UDP transport that connects to the given host.
-    pub fn new(addr: String) -> Self {
-        Self { addr }
+    pub fn new(addr: String, port: Option<u16>) -> Self {
+        let custom_port: u16 = match port {
+            Some(p) => p,
+            None => 53,
+        };
+        // info!("Running on nonstandart port");
+        Self { addr, custom_port }
     }
 }
 
@@ -30,13 +36,8 @@ impl Transport for UdpTransport {
         info!("Opening UDP socket");
         // TODO: This will need to be changed for IPv6 support.
         let socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0))?;
+        socket.connect( (&*self.addr, self.custom_port))?;
 
-        if self.addr.contains(':') {
-            socket.connect(&*self.addr)?;
-        }
-        else {
-            socket.connect((&*self.addr, 53))?;
-        }
         debug!("Opened");
 
         let bytes_to_send = request.to_bytes().expect("failed to serialise request");
