@@ -1,7 +1,8 @@
 [package]
 name = "dns"
-version = "0.2.0-pre"
-authors = ["Benjamin Sago <ogham@bsago.me>"]
+version = "0.2.4-beta"
+author = ["Darrion Whitfield <dwhitfield@ramfield.net>"]
+# Original author authors = ["Benjamin Sago <ogham@bsago.me>"]
 edition = "2018"
 
 [lib]
