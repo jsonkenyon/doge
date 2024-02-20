@@ -8,7 +8,7 @@ use log::*;
 use dns::{QClass, Labels};
 use dns::record::RecordType;
 
-use crate::connect::TransportType;
+use crate::connect::{PortNumber, TransportType};
 use crate::output::{OutputFormat, UseColours, TextFormat};
 use crate::requests::{RequestGenerator, Inputs, ProtocolTweaks, UseEDNS};
 use crate::resolve::ResolverType;
@@ -117,10 +117,10 @@ impl Options {
 
 impl RequestGenerator {
     fn deduce(matches: getopts::Matches) -> Result<Self, OptionsError> {
-        let edns = UseEDNS::deduce(&matches)?;
-        let txid_generator = TxidGenerator::deduce(&matches)?;
-        let protocol_tweaks = ProtocolTweaks::deduce(&matches)?;
-        let inputs = Inputs::deduce(matches)?;
+        let edns: UseEDNS                   = UseEDNS::deduce(&matches)?;
+        let txid_generator: TxidGenerator   = TxidGenerator::deduce(&matches)?;
+        let protocol_tweaks: ProtocolTweaks = ProtocolTweaks::deduce(&matches)?;
+        let inputs: Inputs                  = Inputs::deduce(matches)?;
 
         Ok(Self { inputs, txid_generator, edns, protocol_tweaks })
     }
@@ -132,35 +132,35 @@ impl Inputs {
         let mut inputs = Self::default();
         inputs.load_transport_types(&matches);
         inputs.load_named_args(&matches)?;
-        inputs.load_free_args(matches)?;
+        inputs.load_free_args(matches.clone())?;
         inputs.check_for_missing_nameserver()?;
+        inputs.load_port_option(&matches);
         inputs.load_fallbacks();
         Ok(inputs)
     }
 
+    fn load_port_option(&mut self, matches: &getopts::Matches) {
+        let ports: Vec<String> = matches.opt_strs("port");
+        self.port_value.push(PortNumber::new(ports));
+
+    }
+
     fn load_transport_types(&mut self, matches: &getopts::Matches) {
 
-        
-        let ports: Vec<String> = matches.opt_strs("port");
-        let port: Option<u16> = match ports.len() == 1{
-            true => Some(ports[0].parse::<u16>().unwrap()),
-            false => None, // TODO add warning that multiple ports can't be given
-        };
-
         if matches.opt_present("https") {
-            self.transport_types.push(TransportType::HTTPS(port));
+            self.transport_types.push(TransportType::HTTPS);
         }
         
         if matches.opt_present("tls") {
-            self.transport_types.push(TransportType::TLS(port));
+            self.transport_types.push(TransportType::TLS);
         }
         
         if matches.opt_present("tcp") {
-            self.transport_types.push(TransportType::TCP(port));
+            self.transport_types.push(TransportType::TCP);
         }
         
         if matches.opt_present("udp") {
-            self.transport_types.push(TransportType::UDP(port));
+            self.transport_types.push(TransportType::UDP);
         }
     }
 
@@ -236,7 +236,7 @@ impl Inputs {
     }
 
     fn check_for_missing_nameserver(&self) -> Result<(), OptionsError> {
-        if self.resolver_types.is_empty() && self.transport_types == [TransportType::HTTPS(None)] {
+        if self.resolver_types.is_empty() && self.transport_types == [TransportType::HTTPS] {
             Err(OptionsError::MissingHttpsUrl)
         }
         else {
@@ -258,7 +258,11 @@ impl Inputs {
         }
 
         if self.transport_types.is_empty() {
-            self.transport_types.push(TransportType::Automatic(None));
+            self.transport_types.push(TransportType::Automatic);
+        }
+
+        if self.port_value.is_empty() {
+            self.port_value.push(PortNumber { port: 0 });
         }
     }
 
@@ -404,7 +408,7 @@ impl UseEDNS {
                 "disable" | "off"  => Ok(Self::Disable),
                 "hide"             => Ok(Self::SendAndHide),
                 "show"             => Ok(Self::SendAndShow),
-                oh                 => Err(OptionsError::InvalidEDNS(oh.into())),
+                oh           => Err(OptionsError::InvalidEDNS(oh.into())),
             }
         }
         else {
@@ -507,8 +511,8 @@ impl fmt::Display for OptionsError {
             Self::InvalidQueryClass(qc)  => write!(f, "Invalid query class {qc:?}"),
             Self::InvalidTxid(txid)      => write!(f, "Invalid transaction ID {txid:?}"),
             Self::InvalidTweak(tweak)    => write!(f, "Invalid protocol tweak {tweak:?}"),
-            Self::QueryTypeOPT           => write!(f, "OPT request is sent by default (see -Z flag)"),
-            Self::MissingHttpsUrl        => write!(f, "You must pass a URL as a nameserver when using --https"),
+            Self::QueryTypeOPT                    => write!(f, "OPT request is sent by default (see -Z flag)"),
+            Self::MissingHttpsUrl                 => write!(f, "You must pass a URL as a nameserver when using --https"),
         }
     }
 }
@@ -527,7 +531,8 @@ mod test {
                 record_types:    vec![ RecordType::A ],
                 classes:         vec![ QClass::IN ],
                 resolver_types:  vec![ ResolverType::SystemDefault ],
-                transport_types: vec![ TransportType::Automatic(None) ],
+                transport_types: vec![ TransportType::Automatic ],
+                port_value:      vec![ PortNumber { port: 0 } ],
             }
         }
     }
@@ -590,27 +595,27 @@ mod test {
 
     #[test]
     fn just_domain() {
-        let options = Options::getopts(&[ "lookup.dog" ]).unwrap();
+        let options = Options::getopts(&[ "google.com" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains: vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains: vec![ Labels::encode("google.com").unwrap() ],
             .. Inputs::fallbacks()
         });
     }
 
     #[test]
     fn just_named_domain() {
-        let options = Options::getopts(&[ "-q", "lookup.dog" ]).unwrap();
+        let options = Options::getopts(&[ "-q", "google.com" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains: vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains: vec![ Labels::encode("google.com").unwrap() ],
             .. Inputs::fallbacks()
         });
     }
 
     #[test]
     fn domain_and_type() {
-        let options = Options::getopts(&[ "lookup.dog", "SOA" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "SOA" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:      vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:      vec![ Labels::encode("google.com").unwrap() ],
             record_types: vec![ RecordType::SOA ],
             .. Inputs::fallbacks()
         });
@@ -618,9 +623,9 @@ mod test {
 
     #[test]
     fn domain_and_type_lowercase() {
-        let options = Options::getopts(&[ "lookup.dog", "soa" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "soa" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:      vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:      vec![ Labels::encode("google.com").unwrap() ],
             record_types: vec![ RecordType::SOA ],
             .. Inputs::fallbacks()
         });
@@ -628,9 +633,9 @@ mod test {
 
     #[test]
     fn domain_and_other_type() {
-        let options = Options::getopts(&[ "lookup.dog", "any" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "any" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:      vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:      vec![ Labels::encode("google.com").unwrap() ],
             record_types: vec![ RecordType::Other(UnknownQtype::from_type_name("ANY").unwrap()) ],
             .. Inputs::fallbacks()
         });
@@ -638,9 +643,9 @@ mod test {
 
     #[test]
     fn domain_and_single_domain() {
-        let options = Options::getopts(&[ "lookup.dog", "mixes" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "mixes" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:      vec![ Labels::encode("lookup.dog").unwrap(),
+            domains:      vec![ Labels::encode("google.com").unwrap(),
                                 Labels::encode("mixes").unwrap() ],
             .. Inputs::fallbacks()
         });
@@ -648,9 +653,9 @@ mod test {
 
     #[test]
     fn domain_and_nameserver() {
-        let options = Options::getopts(&[ "lookup.dog", "@1.1.1.1" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "@1.1.1.1" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:        vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:        vec![ Labels::encode("google.com").unwrap() ],
             resolver_types: vec![ ResolverType::Specific("1.1.1.1".into()) ],
             .. Inputs::fallbacks()
         });
@@ -658,9 +663,9 @@ mod test {
 
     #[test]
     fn domain_and_class() {
-        let options = Options::getopts(&[ "lookup.dog", "CH" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "CH" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains: vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains: vec![ Labels::encode("google.com").unwrap() ],
             classes: vec![ QClass::CH ],
             .. Inputs::fallbacks()
         });
@@ -668,9 +673,9 @@ mod test {
 
     #[test]
     fn domain_and_class_lowercase() {
-        let options = Options::getopts(&[ "lookup.dog", "ch" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "ch" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains: vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains: vec![ Labels::encode("google.com").unwrap() ],
             classes: vec![ QClass::CH ],
             .. Inputs::fallbacks()
         });
@@ -678,9 +683,9 @@ mod test {
 
     #[test]
     fn all_free() {
-        let options = Options::getopts(&[ "lookup.dog", "CH", "NS", "@1.1.1.1" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "CH", "NS", "@1.1.1.1" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:        vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:        vec![ Labels::encode("google.com").unwrap() ],
             classes:        vec![ QClass::CH ],
             record_types:   vec![ RecordType::NS ],
             resolver_types: vec![ ResolverType::Specific("1.1.1.1".into()) ],
@@ -690,9 +695,9 @@ mod test {
 
     #[test]
     fn all_parameters() {
-        let options = Options::getopts(&[ "-q", "lookup.dog", "--class", "CH", "--type", "SOA", "--nameserver", "1.1.1.1" ]).unwrap();
+        let options = Options::getopts(&[ "-q", "google.com", "--class", "CH", "--type", "SOA", "--nameserver", "1.1.1.1" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:        vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:        vec![ Labels::encode("google.com").unwrap() ],
             classes:        vec![ QClass::CH ],
             record_types:   vec![ RecordType::SOA ],
             resolver_types: vec![ ResolverType::Specific("1.1.1.1".into()) ],
@@ -702,9 +707,9 @@ mod test {
 
     #[test]
     fn all_parameters_lowercase() {
-        let options = Options::getopts(&[ "-q", "lookup.dog", "--class", "ch", "--type", "soa", "--nameserver", "1.1.1.1" ]).unwrap();
+        let options = Options::getopts(&[ "-q", "google.com", "--class", "ch", "--type", "soa", "--nameserver", "1.1.1.1" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:        vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:        vec![ Labels::encode("google.com").unwrap() ],
             classes:        vec![ QClass::CH ],
             record_types:   vec![ RecordType::SOA ],
             resolver_types: vec![ ResolverType::Specific("1.1.1.1".into()) ],
@@ -714,9 +719,9 @@ mod test {
 
     #[test]
     fn two_types() {
-        let options = Options::getopts(&[ "-q", "lookup.dog", "--type", "SRV", "--type", "AAAA" ]).unwrap();
+        let options = Options::getopts(&[ "-q", "google.com", "--type", "SRV", "--type", "AAAA" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:      vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:      vec![ Labels::encode("google.com").unwrap() ],
             record_types: vec![ RecordType::SRV, RecordType::AAAA ],
             .. Inputs::fallbacks()
         });
@@ -724,9 +729,9 @@ mod test {
 
     #[test]
     fn two_classes() {
-        let options = Options::getopts(&[ "-q", "lookup.dog", "--class", "IN", "--class", "CH" ]).unwrap();
+        let options = Options::getopts(&[ "-q", "google.com", "--class", "IN", "--class", "CH" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains: vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains: vec![ Labels::encode("google.com").unwrap() ],
             classes: vec![ QClass::IN, QClass::CH ],
             .. Inputs::fallbacks()
         });
@@ -734,9 +739,9 @@ mod test {
 
     #[test]
     fn all_mixed_1() {
-        let options = Options::getopts(&[ "lookup.dog", "--class", "CH", "SOA", "--nameserver", "1.1.1.1" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "--class", "CH", "SOA", "--nameserver", "1.1.1.1" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:        vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:        vec![ Labels::encode("google.com").unwrap() ],
             classes:        vec![ QClass::CH ],
             record_types:   vec![ RecordType::SOA ],
             resolver_types: vec![ ResolverType::Specific("1.1.1.1".into()) ],
@@ -746,9 +751,9 @@ mod test {
 
     #[test]
     fn all_mixed_2() {
-        let options = Options::getopts(&[ "CH", "SOA", "MX", "IN", "-q", "lookup.dog", "--class", "HS" ]).unwrap();
+        let options = Options::getopts(&[ "CH", "SOA", "MX", "IN", "-q", "google.com", "--class", "HS" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:      vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:      vec![ Labels::encode("google.com").unwrap() ],
             classes:      vec![ QClass::HS, QClass::CH, QClass::IN ],
             record_types: vec![ RecordType::SOA, RecordType::MX ],
             .. Inputs::fallbacks()
@@ -757,9 +762,9 @@ mod test {
 
     #[test]
     fn all_mixed_3() {
-        let options = Options::getopts(&[ "lookup.dog", "--nameserver", "1.1.1.1", "--nameserver", "1.0.0.1" ]).unwrap();
+        let options = Options::getopts(&[ "google.com", "--nameserver", "1.1.1.1", "--nameserver", "1.0.0.1" ]).unwrap();
         assert_eq!(options.requests.inputs, Inputs {
-            domains:        vec![ Labels::encode("lookup.dog").unwrap() ],
+            domains:        vec![ Labels::encode("google.com").unwrap() ],
             resolver_types: vec![ ResolverType::Specific("1.1.1.1".into()),
                                   ResolverType::Specific("1.0.0.1".into()), ],
             .. Inputs::fallbacks()
@@ -832,38 +837,38 @@ mod test {
 
         let options = Options::getopts(&[ "dom.ain", "--https", "--tls", "--tcp", "--udp" ]).unwrap();
         assert_eq!(options.requests.inputs.transport_types,
-                   vec![ HTTPS(None), TLS(None), TCP(None), UDP(None) ]);
+                   vec![ HTTPS, TLS, TCP, UDP ]);
     }
 
     // invalid options tests
 
     #[test]
     fn invalid_named_class() {
-        assert_eq!(Options::getopts(&[ "lookup.dog", "--class", "tubes" ]),
+        assert_eq!(Options::getopts(&[ "google.com", "--class", "tubes" ]),
                    OptionsResult::InvalidOptions(OptionsError::InvalidQueryClass("tubes".into())));
     }
 
     #[test]
     fn invalid_named_class_too_big() {
-        assert_eq!(Options::getopts(&[ "lookup.dog", "--class", "999999" ]),
+        assert_eq!(Options::getopts(&[ "google.com", "--class", "999999" ]),
                    OptionsResult::InvalidOptions(OptionsError::InvalidQueryClass("999999".into())));
     }
 
     #[test]
     fn invalid_named_type() {
-        assert_eq!(Options::getopts(&[ "lookup.dog", "--type", "tubes" ]),
+        assert_eq!(Options::getopts(&[ "google.com", "--type", "tubes" ]),
                    OptionsResult::InvalidOptions(OptionsError::InvalidQueryType("tubes".into())));
     }
 
     #[test]
     fn invalid_named_type_too_big() {
-        assert_eq!(Options::getopts(&[ "lookup.dog", "--type", "999999" ]),
+        assert_eq!(Options::getopts(&[ "google.com", "--type", "999999" ]),
                    OptionsResult::InvalidOptions(OptionsError::InvalidQueryType("999999".into())));
     }
 
     #[test]
     fn invalid_txid() {
-        assert_eq!(Options::getopts(&[ "lookup.dog", "--txid=0x10000" ]),
+        assert_eq!(Options::getopts(&[ "google.com", "--txid=0x10000" ]),
                    OptionsResult::InvalidOptions(OptionsError::InvalidTxid("0x10000".into())));
     }
 
@@ -899,7 +904,7 @@ mod test {
 
     #[test]
     fn missing_https_url() {
-        assert_eq!(Options::getopts(&[ "--https", "lookup.dog" ]),
+        assert_eq!(Options::getopts(&[ "--https", "google.com" ]),
                    OptionsResult::InvalidOptions(OptionsError::MissingHttpsUrl));
     }
 
@@ -907,25 +912,25 @@ mod test {
 
     #[test]
     fn opt() {
-        assert_eq!(Options::getopts(&[ "OPT", "lookup.dog" ]),
+        assert_eq!(Options::getopts(&[ "OPT", "google.com" ]),
                    OptionsResult::InvalidOptions(OptionsError::QueryTypeOPT));
     }
 
     #[test]
     fn opt_lowercase() {
-        assert_eq!(Options::getopts(&[ "opt", "lookup.dog" ]),
+        assert_eq!(Options::getopts(&[ "opt", "google.com" ]),
                    OptionsResult::InvalidOptions(OptionsError::QueryTypeOPT));
     }
 
     #[test]
     fn opt_arg() {
-        assert_eq!(Options::getopts(&[ "-t", "OPT", "lookup.dog" ]),
+        assert_eq!(Options::getopts(&[ "-t", "OPT", "google.com" ]),
                    OptionsResult::InvalidOptions(OptionsError::QueryTypeOPT));
     }
 
     #[test]
     fn opt_arg_lowercase() {
-        assert_eq!(Options::getopts(&[ "-t", "opt", "lookup.dog" ]),
+        assert_eq!(Options::getopts(&[ "-t", "opt", "google.com" ]),
                    OptionsResult::InvalidOptions(OptionsError::QueryTypeOPT));
     }
 

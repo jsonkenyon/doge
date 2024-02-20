@@ -1,4 +1,4 @@
-//! dog, the command-line DNS client.
+//! doge, the command-line DNS client.
 
 #![warn(deprecated_in_future)]
 #![warn(future_incompatible)]
@@ -43,7 +43,7 @@ fn main() {
     use std::env;
     use std::process::exit;
 
-    logger::configure(env::var_os("DOG_DEBUG"));
+    logger::configure(env::var_os("DOGE_DEBUG"));
 
     #[cfg(windows)]
     if let Err(e) = ansi_term::enable_ansi_support() {
@@ -97,7 +97,7 @@ fn main() {
 }
 
 
-/// Runs dog with some options, returning the status to exit with.
+/// Runs doge with some options, returning the status to exit with.
 fn run(Options { requests, format, measure_time }: Options) -> i32 {
     use std::time::Instant;
 

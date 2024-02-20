@@ -1,6 +1,7 @@
 //! Request generation based on the user’s input arguments.
+use dns_transport::GenericTransport;
 
-use crate::connect::TransportType;
+use crate::connect::{PortNumber, TransportType};
 use crate::resolve::{ResolverType, ResolverLookupError};
 use crate::txid::TxidGenerator;
 
@@ -41,6 +42,9 @@ pub struct Inputs {
 
     /// The list of transport types to send queries over.
     pub transport_types: Vec<TransportType>,
+
+    /// The port value to use instead of the default.
+    pub port_value: Vec<PortNumber>,
 }
 
 /// Weird protocol options that are allowed by the spec but are not common.
@@ -109,8 +113,17 @@ impl RequestGenerator {
                                 additional = Some(opt);
                             }
 
+
                             let nameserver = resolver.nameserver();
-                            let transport = transport_type.make_transport(nameserver);
+                            let portnum = *&self.inputs.port_value[0].port;
+
+                            // Passing name server and port to the transport type
+                            let params: GenericTransport = GenericTransport {
+                                address: nameserver,
+                                port_num: portnum,
+                            };
+
+                            let transport = transport_type.make_transport(params);
 
                             let mut request_list = Vec::new();
                             for qname in resolver.name_list(domain) {

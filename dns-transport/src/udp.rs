@@ -3,6 +3,8 @@ use std::net::{Ipv4Addr, UdpSocket};
 use log::*;
 
 use dns::{Request, Response};
+use crate::GenericTransport;
+
 use super::{Transport, Error};
 
 
@@ -14,19 +16,24 @@ use super::{Transport, Error};
 ///   Implementation and Specification (November 1987)
 pub struct UdpTransport {
     addr: String,
-    custom_port: u16
+    port: u16,
 }
 
 impl UdpTransport {
 
     /// Creates a new UDP transport that connects to the given host.
-    pub fn new(addr: String, port: Option<u16>) -> Self {
-        let custom_port: u16 = match port {
-            Some(p) => p,
-            None => 53,
-        };
-        // info!("Running on nonstandart port");
-        Self { addr, custom_port }
+    pub fn new(addr: GenericTransport) -> Self {
+        if addr.port_num != 0 {
+            Self {
+            addr : addr.address,
+            port : addr.port_num,
+            }
+        } else {
+            Self {
+                addr : addr.address,
+                port : 53
+            }
+        }
     }
 }
 
@@ -36,7 +43,7 @@ impl Transport for UdpTransport {
         info!("Opening UDP socket");
         // TODO: This will need to be changed for IPv6 support.
         let socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0))?;
-        socket.connect( (&*self.addr, self.custom_port))?;
+        socket.connect( (&*self.addr, self.port))?;
 
         debug!("Opened");
 

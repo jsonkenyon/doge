@@ -5,6 +5,8 @@ use std::io::{Read, Write};
 use log::*;
 
 use dns::{Request, Response};
+use crate::GenericTransport;
+
 use super::{Transport, Error};
 
 
@@ -18,18 +20,24 @@ use super::{Transport, Error};
 ///   TCP, Implementation Requirements (March 2016)
 pub struct TcpTransport {
     addr: String,
-    custom_port: u16
+    port: u16
 }
 
 impl TcpTransport {
 
     /// Creates a new TCP transport that connects to the given host.
-    pub fn new(addr: String, port: Option<u16>) -> Self {
-        let custom_port: u16 = match port {
-            Some(port) => port,
-            None => 53,
-        };
-        Self { addr, custom_port }
+    pub fn new(addr: GenericTransport) -> Self {
+        if addr.port_num != 0 {
+            Self {
+            addr : addr.address,
+            port : addr.port_num,
+            }
+        } else {
+            Self {
+                addr : addr.address,
+                port : 53
+            }
+        }
     }
 }
 
@@ -38,7 +46,7 @@ impl Transport for TcpTransport {
     fn send(&self, request: &Request) -> Result<Response, Error> {
         info!("Opening TCP stream");
         let mut stream =
-                TcpStream::connect((&*self.addr, self.custom_port))?;
+                TcpStream::connect((&*self.addr, self.port))?;
    
         debug!("Opened");
 

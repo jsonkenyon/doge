@@ -33,10 +33,18 @@ pub enum Error {
     /// response code text, if present.
     #[cfg(feature = "with_https")]
     WrongHttpStatus(u16, Option<String>),
+
+    /// If an error occours while parsing the port number.
+    PortError(std::num::ParseIntError),
 }
 
 
 // From impls
+impl From<std::num::ParseIntError> for Error {
+    fn from(inner: std::num::ParseIntError) -> Self {
+        Self::PortError(inner) 
+    }
+}
 
 impl From<dns::WireError> for Error {
     fn from(inner: dns::WireError) -> Self {
