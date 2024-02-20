@@ -23,7 +23,6 @@ doctest = false
 
 [workspace]
 members = [
-  "dns",
   "dns-transport",
 ]
 
@@ -42,7 +41,7 @@ panic = "abort"
 [dependencies]
 
 # dns stuff
-dns = { path = "./dns" }
+doge_dns = "0.2.4-beta"
 dns-transport = { path = "./dns-transport" }
 
 # command-line
@@ -71,7 +70,7 @@ pretty_assertions = "0.7"
 
 [features]
 default = ["with_idna", "with_tls", "with_https", "with_nativetls"]
-with_idna = ["dns/with_idna"]
+with_idna = ["doge_dns/with_idna"]
 
 with_tls = ["dns-transport/with_tls"]
 with_https = ["dns-transport/with_https"]

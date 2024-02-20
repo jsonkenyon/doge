@@ -5,8 +5,8 @@ use std::fmt;
 
 use log::*;
 
-use dns::{QClass, Labels};
-use dns::record::RecordType;
+use doge_dns::{QClass, Labels};
+use doge_dns::record::RecordType;
 
 use crate::connect::{PortNumber, TransportType};
 use crate::output::{OutputFormat, UseColours, TextFormat};
@@ -522,7 +522,7 @@ impl fmt::Display for OptionsError {
 mod test {
     use super::*;
     use pretty_assertions::assert_eq;
-    use dns::record::UnknownQtype;
+    use doge_dns::record::UnknownQtype;
 
     impl Inputs {
         fn fallbacks() -> Self {

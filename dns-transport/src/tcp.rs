@@ -4,7 +4,7 @@ use std::io::{Read, Write};
 
 use log::*;
 
-use dns::{Request, Response};
+use doge_dns::{Request, Response};
 use crate::GenericTransport;
 
 use super::{Transport, Error};

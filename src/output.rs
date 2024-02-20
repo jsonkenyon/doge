@@ -4,8 +4,8 @@ use std::fmt;
 use std::time::Duration;
 use std::env;
 
-use dns::{Response, Query, Answer, QClass, ErrorCode, WireError, MandatedLength};
-use dns::record::{Record, RecordType, UnknownQtype, OPT};
+use doge_dns::{Response, Query, Answer, QClass, ErrorCode, WireError, MandatedLength};
+use doge_dns::record::{Record, RecordType, UnknownQtype, OPT};
 use dns_transport::Error as TransportError;
 use json::{object, JsonValue};
 

@@ -4,7 +4,7 @@ pub enum Error {
 
     /// The data in the response did not parse correctly from the DNS wire
     /// protocol format.
-    WireError(dns::WireError),
+    WireError(doge_dns::WireError),
 
     /// There was a problem with the network making a TCP or UDP request.
     NetworkError(std::io::Error),
@@ -46,8 +46,8 @@ impl From<std::num::ParseIntError> for Error {
     }
 }
 
-impl From<dns::WireError> for Error {
-    fn from(inner: dns::WireError) -> Self {
+impl From<doge_dns::WireError> for Error {
+    fn from(inner: doge_dns::WireError) -> Self {
         Self::WireError(inner)
     }
 }

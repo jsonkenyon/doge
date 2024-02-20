@@ -58,7 +58,7 @@ pub trait Transport {
     /// receiving data, or the DNS packet in the response contained invalid
     /// bytes and failed to parse, or if there was a protocol-level error for
     /// the TLS and HTTPS transports.
-    fn send(&self, request: &dns::Request) -> Result<dns::Response, Error>;
+    fn send(&self, request: &doge_dns::Request) -> Result<doge_dns::Response, Error>;
 }
 
 /// The **Generic transport**, Allows easier passthrough of data to other transports

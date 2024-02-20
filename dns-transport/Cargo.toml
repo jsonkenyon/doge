@@ -12,7 +12,7 @@ test = false
 [dependencies]
 
 # dns wire protocol
-dns = { path = "../dns" }
+doge_dns = "0.2.4-beta"
 
 # logging
 log = "0.4"

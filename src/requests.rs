@@ -29,13 +29,13 @@ pub struct RequestGenerator {
 pub struct Inputs {
 
     /// The list of domain names to query.
-    pub domains: Vec<dns::Labels>,
+    pub domains: Vec<doge_dns::Labels>,
 
     /// The list of DNS record types to query for.
-    pub record_types: Vec<dns::record::RecordType>,
+    pub record_types: Vec<doge_dns::record::RecordType>,
 
     /// The list of DNS classes to query for.
-    pub classes: Vec<dns::QClass>,
+    pub classes: Vec<doge_dns::QClass>,
 
     /// The list of resolvers to send queries to.
     pub resolver_types: Vec<ResolverType>,
@@ -84,7 +84,7 @@ pub enum UseEDNS {
 /// The entry type for `RequestGenerator`: a transport to send a request, and
 /// a list of one or more DNS queries to send over it, as determined by the
 /// search path in the resolver.
-pub type RequestSet = (Box<dyn dns_transport::Transport>, Vec<dns::Request>);
+pub type RequestSet = (Box<dyn dns_transport::Transport>, Vec<doge_dns::Request>);
 
 impl RequestGenerator {
 
@@ -103,12 +103,12 @@ impl RequestGenerator {
                     for resolver in &resolvers {
                         for transport_type in &self.inputs.transport_types {
 
-                            let mut flags = dns::Flags::query();
+                            let mut flags = doge_dns::Flags::query();
                             self.protocol_tweaks.set_request_flags(&mut flags);
 
                             let mut additional = None;
                             if self.edns.should_send() {
-                                let mut opt = dns::Request::additional_record();
+                                let mut opt = doge_dns::Request::additional_record();
                                 self.protocol_tweaks.set_request_opt_fields(&mut opt);
                                 additional = Some(opt);
                             }
@@ -128,8 +128,8 @@ impl RequestGenerator {
                             let mut request_list = Vec::new();
                             for qname in resolver.name_list(domain) {
                                 let transaction_id = self.txid_generator.generate();
-                                let query = dns::Query { qname, qclass, qtype };
-                                let request = dns::Request { transaction_id, flags, query, additional: additional.clone() };
+                                let query = doge_dns::Query { qname, qclass, qtype };
+                                let request = doge_dns::Request { transaction_id, flags, query, additional: additional.clone() };
                                 request_list.push(request);
                             }
                             requests.push((transport, request_list));
@@ -159,7 +159,7 @@ impl UseEDNS {
 impl ProtocolTweaks {
 
     /// Sets fields in the DNS flags based on the user’s requested tweaks.
-    pub fn set_request_flags(self, flags: &mut dns::Flags) {
+    pub fn set_request_flags(self, flags: &mut doge_dns::Flags) {
         if self.set_authoritative_flag {
             flags.authoritative = true;
         }
@@ -175,7 +175,7 @@ impl ProtocolTweaks {
 
     /// Set the payload size field in the outgoing OPT record, if the user has
     /// requested to do so.
-    pub fn set_request_opt_fields(self, opt: &mut dns::record::OPT) {
+    pub fn set_request_opt_fields(self, opt: &mut doge_dns::record::OPT) {
         if let Some(bufsize) = self.udp_payload_size {
             opt.udp_payload_size = bufsize;
         }

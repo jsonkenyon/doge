@@ -5,7 +5,7 @@ use std::net::TcpStream;
 
 use log::*;
 
-use dns::{Request, Response, WireError};
+use doge_dns::{Request, Response, WireError};
 use crate::GenericTransport;
 
 use super::{Transport, Error};

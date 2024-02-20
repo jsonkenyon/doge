@@ -142,9 +142,9 @@ fn run(Options { requests, format, measure_time }: Options) -> i32 {
                     }
 
                     if ! should_show_opt {
-                        response.answers.retain(dns::Answer::is_standard);
-                        response.authorities.retain(dns::Answer::is_standard);
-                        response.additionals.retain(dns::Answer::is_standard);
+                        response.answers.retain(doge_dns::Answer::is_standard);
+                        response.authorities.retain(doge_dns::Answer::is_standard);
+                        response.additionals.retain(doge_dns::Answer::is_standard);
                     }
 
                     responses.push(response);
