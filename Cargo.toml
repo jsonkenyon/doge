@@ -41,7 +41,7 @@ panic = "abort"
 [dependencies]
 
 # dns stuff
-doge_dns = "0.2.4-beta"
+doge_dns = "1.0.1"
 dns-transport = { path = "./dns-transport" }
 
 # command-line

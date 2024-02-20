@@ -149,9 +149,9 @@ dependencies = [
 
 [[package]]
 name = "doge_dns"
-version = "0.2.4-beta"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c198586e6649caf93c0932a982a7036dd4b34f1c47da1f9b669f872f98bb9405"
+checksum = "d0b233996a83c2486f7a291dbdd75ae23fd0f6d8f61d6376e9452da80b96d185"
 dependencies = [
  "base64 0.21.7",
  "byteorder",

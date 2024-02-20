@@ -682,7 +682,7 @@ fn error_message(error: TransportError) -> String {
 
 /// Formats a wire error into its human-readable message, describing what was
 /// wrong with the packet we received.
-fn wire_error_message(error: WireError) -> String {
+fn wire_error_message(error: doge_dns::WireError) -> String {
     match error {
         WireError::IO => {
             "Malformed packet: insufficient data".into()
