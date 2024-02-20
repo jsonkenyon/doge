@@ -6,6 +6,8 @@ use std::net::TcpStream;
 use log::*;
 
 use dns::{Request, Response, WireError};
+use crate::GenericTransport;
+
 use super::{Transport, Error};
 
 use super::tls_stream;
@@ -14,18 +16,24 @@ use super::tls_stream;
 /// encrypted with TLS, using TCP.
 pub struct HttpsTransport {
     url: String,
-    custom_port: u16
+    port: u16
 }
 
 impl HttpsTransport {
 
     /// Creates a new HTTPS transport that connects to the given URL.
-    pub fn new(url: String, port: Option<u16>) -> Self {
-        let custom_port: u16 = match port {
-            Some(port) => port,
-            None => 443,
-        };
-        Self { url, custom_port }
+    pub fn new(addr: GenericTransport) -> Self {
+        if addr.port_num != 0 {
+            Self {
+            url : addr.address,
+            port : addr.port_num,
+            }
+        } else {
+            Self {
+                url : addr.address,
+                port : 443
+            }
+        }
     }
 }
 
@@ -47,7 +55,7 @@ impl Transport for HttpsTransport {
         let (domain, path) = self.split_domain().expect("Invalid HTTPS nameserver");
 
         info!("Opening TLS socket to {:?}", domain);
-        let mut stream = Self::stream(&domain, *&self.custom_port)?;
+        let mut stream = Self::stream(&domain, self.port)?;
 
         debug!("Connected");
 

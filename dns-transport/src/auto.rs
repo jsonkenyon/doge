@@ -1,6 +1,8 @@
 use log::*;
 
 use dns::{Request, Response};
+use crate::GenericTransport;
+
 use super::{Transport, Error, UdpTransport, TcpTransport};
 
 
@@ -11,25 +13,34 @@ use super::{Transport, Error, UdpTransport, TcpTransport};
 /// This is the default behaviour for many DNS clients.
 pub struct AutoTransport {
     addr: String,
-    custom_port: u16
+    port: u16
 }
 
 impl AutoTransport {
 
     /// Creates a new automatic transport that connects to the given host.
-    pub fn new(addr: String, port: Option<u16>) -> Self {
-        let custom_port: u16 = match port {
-            Some(port) => port,
-            None => 53,
-        };
-        Self { addr, custom_port }
+    pub fn new(addr: GenericTransport) -> Self {
+        if addr.port_num != 0 {
+            Self {
+            addr : addr.address,
+            port : addr.port_num,
+            }
+        } else {
+            Self {
+                addr : addr.address,
+                port : 53
+            }
+        }
     }
 }
 
 
 impl Transport for AutoTransport {
     fn send(&self, request: &Request) -> Result<Response, Error> {
-        let udp_transport = UdpTransport::new(self.addr.clone(), Some(self.custom_port.clone()));
+        let udp_transport = UdpTransport::new(GenericTransport {
+            address: self.addr.clone(),
+            port_num: self.port.clone(),
+        });
         let udp_response = udp_transport.send(&request)?;
 
         if ! udp_response.flags.truncated {
@@ -38,7 +49,10 @@ impl Transport for AutoTransport {
 
         debug!("Truncated flag set, so switching to TCP");
 
-        let tcp_transport = TcpTransport::new(self.addr.clone(), Some(self.custom_port.clone()));
+        let tcp_transport = TcpTransport::new(GenericTransport {
+            address: self.addr.clone(),
+            port_num: self.port.clone(),
+        });
         let tcp_response = tcp_transport.send(&request)?;
         Ok(tcp_response)
     }

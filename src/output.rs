@@ -656,6 +656,7 @@ fn erroneous_phase(error: &TransportError) -> &'static str {
         #[cfg(feature = "with_https")]
         TransportError::HttpError(_)          |
         TransportError::WrongHttpStatus(_,_)  => "http",
+        TransportError::PortError(_) => "port",
     }
 }
 
@@ -674,7 +675,8 @@ fn error_message(error: TransportError) -> String {
         #[cfg(feature = "with_https")]
         TransportError::HttpError(e)          => e.to_string(),
         #[cfg(feature = "with_https")]
-        TransportError::WrongHttpStatus(t,r)  => format!("Nameserver returned HTTP {} ({})", t, r.unwrap_or_else(|| "No reason".into()))
+        TransportError::WrongHttpStatus(t,r)  => format!("Nameserver returned HTTP {} ({})", t, r.unwrap_or_else(|| "No reason".into())),
+        TransportError::PortError(e) => format!("The portnumber specified was trash {}", e),
     }
 }
 
