@@ -60,3 +60,21 @@ pub trait Transport {
     /// the TLS and HTTPS transports.
     fn send(&self, request: &dns::Request) -> Result<dns::Response, Error>;
 }
+
+/// The **Generic transport**, Allows easier passthrough of data to other transports
+///
+/// # References
+///
+/// - [RFC 1035 §4.2.2](https://tools.ietf.org/html/rfc1035) — Domain Names,
+///   Implementation and Specification (November 1987)
+/// - [RFC 7766](https://tools.ietf.org/html/rfc1035) — DNS Transport over
+///   TCP, Implementation Requirements (March 2016)
+
+#[derive(Clone, Debug)]
+pub struct GenericTransport {
+    /// The ** Address ** will be used as the ip v4/v6 address in **TCP, UDP and TLS** it will be used as the **URL** in DOH
+    pub address: String,
+    
+    /// Specifies sending queries to non standard ports when necessary
+    pub port_num: u16,
+}

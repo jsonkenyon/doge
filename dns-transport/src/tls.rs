@@ -6,6 +6,8 @@ use std::io::Write;
 use log::*;
 
 use dns::{Request, Response};
+use crate::GenericTransport;
+
 use super::{Transport, Error, TcpTransport};
 use super::tls_stream::TlsStream;
 
@@ -14,18 +16,24 @@ use super::tls_stream::TlsStream;
 /// encrypted TLS connection.
 pub struct TlsTransport {
     addr: String,
-    custom_port: u16
+    port: u16
 }
 
 impl TlsTransport {
 
     /// Creates a new TLS transport that connects to the given host.
-    pub fn new(addr: String, port: Option<u16>) -> Self {
-        let custom_port: u16 = match port {
-            Some(p) => p,
-            None => 853,
-        };
-        Self { addr, custom_port }
+    pub fn new(addr: GenericTransport) -> Self {
+        if addr.port_num != 0 {
+            Self {
+            addr : addr.address,
+            port : addr.port_num,
+            }
+        } else {
+            Self {
+                addr : addr.address,
+                port : 853
+            }
+        }
     }
 }
 
@@ -42,7 +50,7 @@ impl Transport for TlsTransport {
         let domain = self.sni_domain();
         info!("Connecting using domain {:?}", domain);
         // comminicate that the port must EXPLICATLY BE SEPERATE
-        let mut stream: TlsStream<TcpStream> = Self::stream(&self.addr, *&self.custom_port)?;
+        let mut stream: TlsStream<TcpStream> = Self::stream(&self.addr, self.port)?;
 
         debug!("Connected");
 
