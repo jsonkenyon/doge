@@ -1,7 +1,8 @@
 [package]
 name = "dns-transport"
-version = "0.2.4-beta"
-authors = ["Benjamin Sago <ogham@bsago.me>"]
+version = "0.2.4"
+authors = ["Darrion Whitfield <dwhitfield@ramfield.net>"]
+description = "The doge lib for preparing and communicating with dns servers and protocols"
 edition = "2018"
 
 [lib]

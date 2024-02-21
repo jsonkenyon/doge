@@ -42,7 +42,7 @@ panic = "abort"
 
 # dns stuff
 doge_dns = "1.0.1"
-dns-transport = { path = "./dns-transport" }
+dns-transport = { path = "./dns-transport", version = "2.4" }
 
 # command-line
 ansi_term = "0.12"
