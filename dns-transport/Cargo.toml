@@ -13,7 +13,7 @@ test = false
 [dependencies]
 
 # dns wire protocol
-doge_dns = "1.0.0"
+doge_dns = "1.0.1"
 
 # logging
 log = "0.4"
