@@ -6,7 +6,7 @@ use std::env;
 
 use doge_dns::{Response, Query, Answer, QClass, ErrorCode, WireError, MandatedLength};
 use doge_dns::record::{Record, RecordType, UnknownQtype, OPT};
-use dns_transport::Error as TransportError;
+use doge_transport::Error as TransportError;
 use json::{object, JsonValue};
 
 use crate::colours::Colours;

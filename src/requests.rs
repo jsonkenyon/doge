@@ -1,5 +1,5 @@
 //! Request generation based on the user’s input arguments.
-use dns_transport::GenericTransport;
+use doge_transport::GenericTransport;
 
 use crate::connect::{PortNumber, TransportType};
 use crate::resolve::{ResolverType, ResolverLookupError};
@@ -84,7 +84,7 @@ pub enum UseEDNS {
 /// The entry type for `RequestGenerator`: a transport to send a request, and
 /// a list of one or more DNS queries to send over it, as determined by the
 /// search path in the resolver.
-pub type RequestSet = (Box<dyn dns_transport::Transport>, Vec<doge_dns::Request>);
+pub type RequestSet = (Box<dyn doge_transport::Transport>, Vec<doge_dns::Request>);
 
 impl RequestGenerator {
 

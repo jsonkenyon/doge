@@ -1,6 +1,6 @@
 //! Creating DNS transports based on the user’s input arguments.
 
-use dns_transport::*;
+use doge_transport::*;
 use log::debug;
 
 

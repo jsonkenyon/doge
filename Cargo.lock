@@ -114,28 +114,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56254986775e3233ffa9c4d7d3faaf6d36a2c09d30b20687e9f88bc8bafc16c8"
 
 [[package]]
-name = "dns-transport"
-version = "0.2.4"
-dependencies = [
- "cfg-if",
- "doge_dns",
- "httparse",
- "log",
- "native-tls",
- "rustls",
- "webpki 0.22.4",
- "webpki-roots",
-]
-
-[[package]]
 name = "doge"
-version = "0.2.4-beta"
+version = "0.2.5-beta"
 dependencies = [
  "ansi_term",
  "atty",
  "datetime",
- "dns-transport",
  "doge_dns",
+ "doge_transport",
  "getopts",
  "ipconfig",
  "json",
@@ -154,6 +140,22 @@ dependencies = [
  "byteorder",
  "log",
  "unic-idna",
+]
+
+[[package]]
+name = "doge_transport"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8492883e7105b8f11c0b974d977ffecd535263462c24e864b2e913362315987b"
+dependencies = [
+ "cfg-if",
+ "doge_dns",
+ "httparse",
+ "log",
+ "native-tls",
+ "rustls",
+ "webpki 0.22.4",
+ "webpki-roots",
 ]
 
 [[package]]
