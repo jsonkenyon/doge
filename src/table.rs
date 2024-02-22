@@ -4,8 +4,8 @@ use std::time::Duration;
 
 use ansi_term::ANSIString;
 
-use dns::Answer;
-use dns::record::Record;
+use doge_dns::Answer;
+use doge_dns::record::Record;
 
 use crate::colours::Colours;
 use crate::output::TextFormat;

@@ -1,5 +1,5 @@
 [package]
-name = "doge"
+name = "dns-doge"
 description = "A command-line DNS client"
 
 authors = ["Darrion Whitfield <dwhitfield@ramfield.net>"]
@@ -7,12 +7,12 @@ categories = ["command-line-utilities"]
 edition = "2021"
 exclude = [
     "/completions/*", "/man/*", "/xtests/*",
-    "/dog-screenshot.png", "/Justfile", "/README.md", "/.rustfmt.toml", "/.travis.yml",
+    "/dog-screenshot.png", "/Justfile", "/README.md", "/.rustfmt.toml", "/.travis.yml", "/makefile",
 ]
 homepage = "https://dns.lookup.dog/"
 license = "MIT"
 
-version = "0.2.4-beta"
+version = "0.2.5-beta"
 
 
 [[bin]]
@@ -21,11 +21,10 @@ path = "src/main.rs"
 doctest = false
 
 
-[workspace]
-members = [
-  "dns",
-  "dns-transport",
-]
+#[workspace]
+#members = [
+#  "dns-transport",
+#]
 
 
 # make dev builds faster by excluding debug symbols
@@ -42,8 +41,8 @@ panic = "abort"
 [dependencies]
 
 # dns stuff
-dns = { path = "./dns" }
-dns-transport = { path = "./dns-transport" }
+doge_dns = "1.0.1"
+doge_transport = "0.2.4"
 
 # command-line
 ansi_term = "0.12"
@@ -71,11 +70,11 @@ pretty_assertions = "0.7"
 
 [features]
 default = ["with_idna", "with_tls", "with_https", "with_nativetls"]
-with_idna = ["dns/with_idna"]
+with_idna = ["doge_dns/with_idna"]
 
-with_tls = ["dns-transport/with_tls"]
-with_https = ["dns-transport/with_https"]
+with_tls = ["doge_transport/with_tls"]
+with_https = ["doge_transport/with_https"]
 
-with_nativetls = ["dns-transport/with_nativetls"]
-with_nativetls_vendored = ["with_nativetls", "dns-transport/with_nativetls", "dns-transport/with_nativetls_vendored"]
-with_rustls = ["dns-transport/with_rustls"]
+with_nativetls = ["doge_transport/with_nativetls"]
+with_nativetls_vendored = ["with_nativetls", "doge_transport/with_nativetls", "doge_transport/with_nativetls_vendored"]
+with_rustls = ["doge_transport/with_rustls"]

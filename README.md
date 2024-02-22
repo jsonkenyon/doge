@@ -70,13 +70,10 @@ It has colourful output, understands normal command-line argument syntax, suppor
 ## Installation
 
 Currently:
-    1. Pull the repo and cd into it
-    2. Ensure you have rust installed and openssl-dev ( On Debian: libssl-dev, On Arch: openssl, and RHEL: openssl-devel)
-    3. build with cargo and enjoy.
-<!-- To install dog, you can download a pre-compiled binary, or you can compile it from source. You _may_ be able to install dog using your OS’s package manager, depending on your platform. -->
+    To install dog, you can download a pre-compiled binary, or you can compile it from source. You _**may**_ be able to install dog using your OS’s package manager, depending on your platform.
 
 ### Project existence 
-    I am not a rust expert at all, Honestly I'm the opposite, just learning codding. I use [dog]() on my arch system and a few random *nix
+    I am not a rust expert at all, Honestly I'm the opposite, just learning codding. I used [`dog`](https://github.com/ogham/dog) on my arch system and a few random *nix
     Laptops that I perpetually fix and break . As such part of this progect will be outside of my skill set or ability to work on currently. Things such as :
         *Windows support as a whole
         *MACOS support as a whole (I'm never buying a mac so this won't be touched by me) I'll merge PRs if thats you thing
@@ -86,7 +83,10 @@ Currently:
 
 ### Packages
 
-    Work in progress
+    This is currelty a Work in progress
+
+    $ cargo install dns-doge
+    
 <!-- - For Arch Linux, install the [`dog`](https://www.archlinux.org/packages/community/x86_64/dog/) package.
 - For Homebrew on macOS, install the [`dog`](https://formulae.brew.sh/formula/dog) formula.
 - For NixOS, install the [`dogdns`](https://search.nixos.org/packages?channel=unstable&show=dogdns&query=dogdns) package. -->
@@ -94,7 +94,7 @@ Currently:
 
 ### Downloads
 
-Binary downloads of dog are available from [the releases section on GitHub](https://github.com/Dj-Codeman/doge/releases/) for ~~64-bit Windows~~, ~~macOS~~, and Linux targets. They contain the compiled executable, the manual page, and shell completions.
+Binary downloads of doge are available from [the releases section on GitHub](https://github.com/Dj-Codeman/doge/releases/) for 64-bit Windows, macOS, and Linux targets. They contain the compiled executable, the manual page, and shell completions.
 
 
 ### Compilation

@@ -4,9 +4,9 @@ use std::fmt;
 use std::time::Duration;
 use std::env;
 
-use dns::{Response, Query, Answer, QClass, ErrorCode, WireError, MandatedLength};
-use dns::record::{Record, RecordType, UnknownQtype, OPT};
-use dns_transport::Error as TransportError;
+use doge_dns::{Response, Query, Answer, QClass, ErrorCode, WireError, MandatedLength};
+use doge_dns::record::{Record, RecordType, UnknownQtype, OPT};
+use doge_transport::Error as TransportError;
 use json::{object, JsonValue};
 
 use crate::colours::Colours;
@@ -682,7 +682,7 @@ fn error_message(error: TransportError) -> String {
 
 /// Formats a wire error into its human-readable message, describing what was
 /// wrong with the packet we received.
-fn wire_error_message(error: WireError) -> String {
+fn wire_error_message(error: doge_dns::WireError) -> String {
     match error {
         WireError::IO => {
             "Malformed packet: insufficient data".into()

@@ -142,9 +142,9 @@ fn run(Options { requests, format, measure_time }: Options) -> i32 {
                     }
 
                     if ! should_show_opt {
-                        response.answers.retain(dns::Answer::is_standard);
-                        response.authorities.retain(dns::Answer::is_standard);
-                        response.additionals.retain(dns::Answer::is_standard);
+                        response.answers.retain(doge_dns::Answer::is_standard);
+                        response.authorities.retain(doge_dns::Answer::is_standard);
+                        response.additionals.retain(doge_dns::Answer::is_standard);
                     }
 
                     responses.push(response);
@@ -182,13 +182,13 @@ fn disabled_feature_check(options: &Options) {
     use crate::connect::TransportType;
 
     #[cfg(all(not(feature = "with_tls"), not(feature = "with_rustls_tls")))]
-    if options.requests.inputs.transport_types.contains(&TransportType::TLS(None)) {
+    if options.requests.inputs.transport_types.contains(&TransportType::TLS) {
         eprintln!("doge: Cannot use '--tls': This version of dog has been compiled without TLS support");
         exit(exits::OPTIONS_ERROR);
     }
 
     #[cfg(all(not(feature = "with_https"), not(feature = "with_rustls_https")))]
-    if options.requests.inputs.transport_types.contains(&TransportType::HTTPS(None)) {
+    if options.requests.inputs.transport_types.contains(&TransportType::HTTPS) {
         eprintln!("doge: Cannot use '--https': This version of dog has been compiled without HTTPS support");
         exit(exits::OPTIONS_ERROR);
     }

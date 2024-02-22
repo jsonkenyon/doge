@@ -5,7 +5,7 @@ use std::io;
 
 use log::*;
 
-use dns::Labels;
+use doge_dns::Labels;
 
 
 /// A **resolver type** is the source of a `Resolver`.

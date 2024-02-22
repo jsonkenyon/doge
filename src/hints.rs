@@ -16,7 +16,7 @@ use log::*;
 /// case, to prevent confusion.
 #[derive(Default)]
 pub struct LocalHosts {
-    hostnames: BTreeSet<dns::Labels>,
+    hostnames: BTreeSet<doge_dns::Labels>,
 }
 
 impl LocalHosts {
@@ -64,7 +64,7 @@ impl LocalHosts {
             }
 
             for hostname in line.split_ascii_whitespace().skip(1) {
-                match dns::Labels::encode(hostname) {
+                match doge_dns::Labels::encode(hostname) {
                     Ok(hn) => {
                         hostnames.insert(hn);
                     }
@@ -81,7 +81,7 @@ impl LocalHosts {
 
     /// Queries this set of hostnames to see if the given name, which is about
     /// to be queried for, exists within the file.
-    pub fn contains(&self, hostname_in_query: &dns::Labels) -> bool {
+    pub fn contains(&self, hostname_in_query: &doge_dns::Labels) -> bool {
         self.hostnames.contains(hostname_in_query)
     }
 }
