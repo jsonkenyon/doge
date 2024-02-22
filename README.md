@@ -85,7 +85,8 @@ Currently:
 
     This is currelty a Work in progress
 
-    The current default install is `**cargo install dns-doge**`, dns-doge is one of the internal libs ('I didn't think throught the names for publishing')
+    $ cargo install dns-doge
+    
 <!-- - For Arch Linux, install the [`dog`](https://www.archlinux.org/packages/community/x86_64/dog/) package.
 - For Homebrew on macOS, install the [`dog`](https://formulae.brew.sh/formula/dog) formula.
 - For NixOS, install the [`dogdns`](https://search.nixos.org/packages?channel=unstable&show=dogdns&query=dogdns) package. -->
