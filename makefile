@@ -1,7 +1,7 @@
 # Makefile
 
 # Define phony targets
-.PHONY: all all-release all-quick build test build-release test-release build-time build-quick check test-quick clippy coverage-docker update-deps unused-deps versions doc man man-preview
+.PHONY: all all-release all-quick build test build-release install test-release build-time build-quick check test-quick clippy coverage-docker update-deps unused-deps versions doc man man-preview
 
 # Set DOGE_DEBUG to empty string
 export DOGE_DEBUG := ""
@@ -12,7 +12,7 @@ build:
 
 build-release:
 	@cargo build --release --verbose
-	@strip "${CARGO_TARGET_DIR:-target}/release/doge"
+	# @strip "${CARGO_TARGET_DIR:-target}/release/doge"
 
 build-time:
 	@cargo +nightly clean
@@ -25,6 +25,11 @@ build-quick:
 check:
 	@cargo check
 
+# Installation of the bin
+install:
+	@mv "./target/release/doge" /usr/bin/doge
+	@chmod +x /usr/bin/doge
+
 # Targets related to testing
 test:
 	@cargo test --workspace -- --quiet
@@ -36,15 +41,6 @@ test-quick:
 	@cargo test --workspace --no-default-features -- --quiet
 
 # Targets related to fuzzing
-# fuzz:
-# 	@cargo +nightly fuzz --version
-# 	@cd dns; cargo +nightly fuzz run fuzz_parsing -- -jobs=`nproc` -workers=`nproc` -runs=69105
-
-# fuzz-hex:
-# 	@for crash in dns/fuzz/artifacts/fuzz_parsing/crash-*; do echo; echo $$crash; hexyl $$crash; done
-
-# fuzz-clean:
-# 	@rm dns/fuzz/fuzz-*.log
 
 # Targets related to code quality and miscellaneous
 clippy:
