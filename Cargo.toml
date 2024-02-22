@@ -7,7 +7,7 @@ categories = ["command-line-utilities"]
 edition = "2021"
 exclude = [
     "/completions/*", "/man/*", "/xtests/*",
-    "/dog-screenshot.png", "/Justfile", "/README.md", "/.rustfmt.toml", "/.travis.yml", /makefile,
+    "/dog-screenshot.png", "/Justfile", "/README.md", "/.rustfmt.toml", "/.travis.yml", "/makefile",
 ]
 homepage = "https://dns.lookup.dog/"
 license = "MIT"
