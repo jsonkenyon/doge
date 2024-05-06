@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - release
       - master
       - release
     tags:
